@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>hi mister busy 🌻</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --cream: #fdf6ec; --blush: #f4c2c2; --rose: #e07b7b;
+    --dusty: #c96d6d; --sage: #a8c5a0; --warm: #f9ede3;
+    --text: #3d2b2b; --soft: #7a5c5c;
+  }
+  body { font-family: 'Lora', serif; background: var(--cream); color: var(--text); min-height: 100vh; overflow: hidden; }
+  .petal { position: fixed; border-radius: 50% 0 50% 0; opacity: 0.22; animation: fall linear infinite; pointer-events: none; z-index: 0; }
+  @keyframes fall { 0% { transform: translateY(-40px) rotate(0deg); opacity: 0.3; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
+  .page { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-align: center; opacity: 0; pointer-events: none; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; z-index: 1; }
+  .page.active { opacity: 1; pointer-events: all; transform: translateY(0); }
+  .page.exit { opacity: 0; transform: translateY(-30px); pointer-events: none; transition: opacity 0.4s ease, transform 0.4s ease; }
+  .card { background: #fff; border-radius: 24px; padding: 3rem 2.5rem; max-width: 480px; width: 100%; box-shadow: 0 8px 48px rgba(196,110,110,0.12), 0 2px 12px rgba(196,110,110,0.08); position: relative; overflow: hidden; }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, var(--blush), var(--rose), var(--blush)); }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--dusty); line-height: 1.2; margin-bottom: 1.2rem; }
+  h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 400; font-style: italic; color: var(--dusty); margin-bottom: 1.2rem; }
+  p { font-size: 1.05rem; line-height: 1.8; color: var(--soft); margin-bottom: 1rem; }
+  .btn-row { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 1.8rem; position: relative; min-height: 50px; }
+  button { font-family: 'Lora', serif; font-size: 1rem; padding: 0.75rem 2rem; border: none; border-radius: 50px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; font-weight: 600; }
+  button:hover { transform: translateY(-2px); }
+  button:active { transform: translateY(0); }
+  .btn-yes { background: var(--rose); color: #fff; box-shadow: 0 4px 16px rgba(224,123,123,0.4); }
+  .btn-yes:hover { box-shadow: 0 6px 20px rgba(224,123,123,0.55); }
+  .btn-no { background: #f0e8e8; color: var(--soft); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .emoji-big { font-size: 3rem; margin-bottom: 0.5rem; display: block; }
+  .emoji-row { font-size: 2rem; margin: 1rem 0; display: flex; gap: 1rem; justify-content: center; }
+  .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; margin-top: 1.2rem; }
+  .option-btn { background: var(--warm); color: var(--text); border-radius: 16px; padding: 1rem 0.8rem; font-size: 0.88rem; line-height: 1.5; box-shadow: 0 2px 8px rgba(196,110,110,0.1); border: 2px solid transparent; transition: all 0.2s; }
+  .option-btn:hover { border-color: var(--blush); background: #fff; transform: translateY(-3px); box-shadow: 0 6px 18px rgba(196,110,110,0.18); }
+  .option-emoji { font-size: 1.5rem; display: block; margin-bottom: 0.4rem; }
+  .page-dot-row { display: flex; gap: 6px; justify-content: center; margin-top: 1.5rem; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blush); opacity: 0.4; }
+  .dot.active { opacity: 1; background: var(--rose); }
+  #day-response { display: none; margin-top: 1rem; font-style: italic; color: var(--rose); font-size: 0.95rem; }
+  .next-link { background: none; border: none; color: var(--rose); font-family: 'Lora', serif; font-size: 0.95rem; text-decoration: underline; cursor: pointer; margin-top: 0.5rem; padding: 0; font-style: italic; display: none; }
+  #no-btn { position: absolute; transition: left 0.15s ease, top 0.15s ease; }
+  #no-msg { display: none; margin-top: 1rem; font-style: italic; color: var(--soft); font-size: 0.9rem; }
+  .confetti-piece { position: fixed; pointer-events: none; z-index: 99; opacity: 0; animation: confettiFall 1.8s ease forwards; }
+  @keyframes confettiFall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+</style>
+</head>
+<body>
+
+<!-- PAGE 0: Greeting -->
+<div class="page active" id="page0">
+  <div class="card">
+    <span class="emoji-big">🌻</span>
+    <h1>hi, mister busy.</h1>
+    <p>i hope you had a good day.</p>
+    <p style="font-family:'Playfair Display',serif; font-style:italic; color:var(--text);">did you?</p>
+    <div class="btn-row">
+      <button class="btn-yes" onclick="goPage('page1a')">yes 😊</button>
+      <button class="btn-no" onclick="goPage('page1b')">no 😔</button>
+    </div>
+    <div class="page-dot-row">
+      <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 1a: Yes -->
+<div class="page" id="page1a">
+  <div class="card">
+    <span class="emoji-big">🥰</span>
+    <h1>that's great!</h1>
+    <p>you deserve every bit of a good day.</p>
+    <p>and well - i made this little thing to make it <em>even better.</em> hopefully.</p>
+    <div class="emoji-row">😊 &nbsp; 😄</div>
+    <div class="btn-row">
+      <button class="btn-yes" onclick="goPage('page2')">keep going →</button>
+    </div>
+    <div class="page-dot-row">
+      <div class="dot"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 1b: No -->
+<div class="page" id="page1b">
+  <div class="card">
+    <span class="emoji-big">🫂</span>
+    <h1>that's okay.</h1>
+    <p>some days are just like that.</p>
+    <p>i made this for you anyway. hope it helps a little.</p>
+    <div class="emoji-row">😊 &nbsp; 😄</div>
+    <div class="btn-row">
+      <button class="btn-yes" onclick="goPage('page2')">keep going →</button>
+    </div>
+    <div class="page-dot-row">
+      <div class="dot"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2: Formal ask -->
+<div class="page" id="page2">
+  <div class="card">
+    <span class="emoji-big">📜</span>
+    <h2>a very formal request.</h2>
+    <p>i am <em>formally</em> asking you -</p>
+    <p style="font-family:'Playfair Display',serif; font-size:1.25rem; color:var(--text); font-weight:700; margin-bottom:0;">would you like to go out with me this Saturday?</p>
+    <div class="btn-row">
+      <button class="btn-yes" onclick="goPage('page3'); confettiBurst()">yes 🎉</button>
+      <button class="btn-no" id="no-btn" onmouseover="runAway(this)" onclick="runAway(this)">no</button>
+    </div>
+    <div id="no-msg">nice try 😏</div>
+    <div class="page-dot-row">
+      <div class="dot"></div><div class="dot"></div><div class="dot active"></div><div class="dot"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 3: What kind of day -->
+<div class="page" id="page3">
+  <div class="card">
+    <h2>perfect. now -</h2>
+    <p>what kind of day would you prefer?</p>
+    <div class="options-grid">
+      <button class="option-btn" onclick="pickDay(this, '🎮 gaming + lunch + ice cream - noted.')">
+        <span class="option-emoji">🎮</span>gaming + lunch + ice cream
+      </button>
+      <button class="option-btn" onclick="pickDay(this, '🍿 movie + lunch + ice cream - classic and i love it.')">
+        <span class="option-emoji">🍿</span>movie + lunch + ice cream
+      </button>
+      <button class="option-btn" onclick="pickDay(this, '🌿 a walk in the park - okay you romantic, i see you 😄')">
+        <span class="option-emoji">🌿</span>walk in the park 😄
+      </button>
+      <button class="option-btn" onclick="pickDay(this, '🏠 fine. but i am coming over 😢')">
+        <span class="option-emoji">😢</span>don't wanna go anywhere
+      </button>
+    </div>
+    <p id="day-response"></p>
+    <button class="next-link" id="final-link" onclick="goFinal()">go to the last page →</button>
+    <div class="page-dot-row">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot active"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE FINAL -->
+<div class="page" id="page-final">
+  <div class="card">
+    <span class="emoji-big">🌸</span>
+    <h1>if this made you smile -</h1>
+    <p>that's already a great thing.</p>
+    <p>i hope to see you on Saturday. 💛</p>
+    <div style="margin-top:1.2rem; background:var(--warm); border-radius:14px; padding:1rem 1.2rem;">
+      <p style="font-size:0.82rem; color:var(--soft); margin-bottom:0.3rem; font-style:italic;">your pick for Saturday -</p>
+      <p id="chosen-display" style="font-family:'Playfair Display',serif; font-size:1rem; color:var(--dusty); font-weight:600; margin-bottom:0;"></p>
+    </div>
+    <p style="font-size:0.8rem; color:#bfa9a9; margin-top:1.2rem; font-style:italic;">screenshot this and send it to me 🌻</p>
+  </div>
+</div>
+
+<script>
+  // petals
+  const pc = ['#f4c2c2','#e07b7b','#a8c5a0','#f9c784','#fad4d4'];
+  for (let i = 0; i < 14; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.style.cssText = `left:${Math.random()*100}%;background:${pc[Math.floor(Math.random()*pc.length)]};animation-duration:${6+Math.random()*8}s;animation-delay:${Math.random()*8}s;width:${8+Math.random()*8}px;height:${10+Math.random()*10}px;border-radius:${Math.random()>0.5?'50% 0 50% 0':'0 50% 0 50%'};`;
+    document.body.appendChild(p);
+  }
+  // floating flowers & sunflowers
+  const flowers = ['🌻','🌸','🌼','🌻','🌷','🌻'];
+  for (let i = 0; i < 10; i++) {
+    const f = document.createElement('div');
+    f.textContent = flowers[Math.floor(Math.random()*flowers.length)];
+    f.style.cssText = `position:fixed;left:${Math.random()*100}%;font-size:${14+Math.random()*14}px;opacity:0.28;animation:fall ${7+Math.random()*9}s linear ${Math.random()*10}s infinite;pointer-events:none;z-index:0;`;
+    document.body.appendChild(f);
+  }
+
+  function goPage(id) {
+    document.querySelectorAll('.page').forEach(p => {
+      if (p.classList.contains('active')) {
+        p.classList.add('exit');
+        setTimeout(() => p.classList.remove('active','exit'), 500);
+      }
+    });
+    setTimeout(() => { document.getElementById(id)?.classList.add('active'); }, 350);
+  }
+
+  let runCount = 0;
+  function runAway(btn) {
+    runCount++;
+    const card = btn.closest('.card');
+    const maxX = card.offsetWidth - btn.offsetWidth - 20;
+    const maxY = card.offsetHeight - btn.offsetHeight - 20;
+    btn.style.position = 'absolute';
+    btn.style.left = (10 + Math.random() * maxX) + 'px';
+    btn.style.top  = (10 + Math.random() * maxY) + 'px';
+    if (runCount >= 3) document.getElementById('no-msg').style.display = 'block';
+  }
+
+  let chosenDay = '';
+  function pickDay(btn, msg) {
+    document.querySelectorAll('.option-btn').forEach(b => { b.style.borderColor = ''; b.style.background = ''; });
+    btn.style.borderColor = '#e07b7b';
+    btn.style.background = '#fff';
+    const r = document.getElementById('day-response');
+    r.textContent = msg;
+    r.style.display = 'block';
+    chosenDay = btn.innerText.trim();
+    document.getElementById('final-link').style.display = 'inline';
+  }
+
+  function goFinal() {
+    document.getElementById('chosen-display').textContent = chosenDay;
+    goPage('page-final');
+  }
+
+  function confettiBurst() {
+    const colors = ['#f4c2c2','#e07b7b','#a8c5a0','#f9c784','#fff','#fad4d4'];
+    for (let i = 0; i < 55; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti-piece';
+      c.style.cssText = `left:${Math.random()*100}vw;top:${Math.random()*40}vh;background:${colors[Math.floor(Math.random()*colors.length)]};animation-delay:${Math.random()*0.8}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>0.5?'50%':'2px'};`;
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 2800);
+    }
+  }
+</script>
+</body>
+</html>
